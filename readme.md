@@ -1,1 +1,1 @@
-Meeting API
+Meeting API with JWT

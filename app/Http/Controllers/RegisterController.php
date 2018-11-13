@@ -66,7 +66,7 @@ class RegisterController extends Controller
     public function destroy($id)
     {
         $meeting = Meeting::findOrFail($id);
-        $meeting->users()->detech();
+        $meeting->users()->detach();
 
         $respnse = [
             'msg' => 'User unregistered for meeting',
