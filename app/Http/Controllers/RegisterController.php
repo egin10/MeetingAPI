@@ -17,7 +17,7 @@ class RegisterController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate([
+        $this->validate($request, [
             'meeting_id' => 'required',
             'user_id' => 'required'
         ]);
@@ -33,11 +33,28 @@ class RegisterController extends Controller
             'user' => $user,
             'meeting' => $meeting,
             'unregister' => [
-                'href' => 'api/v1/meeting/registration' . $meeting_id,
+                'href' => 'api/v1/meeting/registration/' . $meeting_id,
                 'method' => 'DELETE'
             ]
         ];
-        
+
+        if ($meeting->users()->where('user_id', $user_id)->first()) {
+            return response()->json($message, 404);
+        }
+
+        $user->meetings()->attach($meeting);
+
+        $respnse = [
+            'msg' => 'User registered for meeting',
+            'meeting' => $meeting,
+            'user' => $user,
+            'unregister' => [
+                'href' => 'api/v1/meeting/registration/' . $meeting->id,
+                'method' => 'DELETE'
+            ]
+        ];
+
+        return response()->json($respnse, 201);
     }
 
     /**
@@ -48,6 +65,20 @@ class RegisterController extends Controller
      */
     public function destroy($id)
     {
-        return 'it works!';
+        $meeting = Meeting::findOrFail($id);
+        $meeting->users()->detech();
+
+        $respnse = [
+            'msg' => 'User unregistered for meeting',
+            'meeting' => $meeting,
+            'user' => 'tbd',
+            'register' => [
+                'href' => 'api/v1/meeting/registration',
+                'method' => 'POST',
+                'params' => 'user_id, meeting_id'
+            ]
+        ];
+
+        return response()->json($respnse, 200);
     }
 }
